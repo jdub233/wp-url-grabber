@@ -4,6 +4,10 @@ Grabs urls from WP API; it looks at the `x-wp-totalpages` parameter in the heade
 
 ## Usage
 
+First run `npm install` to setup dependencies.
+
+The script can be run through `npm run` like so:
+
 ```bash
 npm run get --url=http://demo.wp-api.org/wp-json/wp/v2/posts | tee output/urls.txt
 ```
