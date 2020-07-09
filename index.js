@@ -20,7 +20,7 @@ const getEndpoint = url => axios.get(url);
 
     for (let i = 2; i <= pages; i++) {
         const response = await getEndpoint(`${endpoint}?page=${i}`);
-        // Send link fields for this batch to the console.
+        // Send link fields for the remaining batches to the console as they sequentially resolve.
         response.data.map( ({link}) => console.log(link) );
     }
 })();
