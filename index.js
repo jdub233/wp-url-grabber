@@ -1,46 +1,26 @@
-const Axios = require('axios-observable').Axios;
+const axios = require('axios');
 
 const endpoint = process.env.npm_config_url;
-
-let currentPage = 1;
 
 if (!endpoint) {
     console.log('no url provided');
     return;
 }
 
-const firstResponse = (response) => {
-    pages = parseInt(response.headers['x-wp-totalpages'], 10);
+const getEndpoint = url => axios.get(url);
 
-    // This is good, but sometimes the response data comes back in an object, not an iterable array(?)
-    //response.data.map( ( {link} ) => console.log(link) );
+(async function get() {
+    const firstResponse = await getEndpoint(endpoint);
+    
+    // Extract the number of total pages in the response.
+    const pages = parseInt(firstResponse.headers['x-wp-totalpages'], 10);
 
-    Object.keys(response.data).map( (key) => console.log(response.data[key].link) );
+    // Extract the link field from the first batch and send it to the console.
+    firstResponse.data.map( ({link}) => console.log(link) );
 
-    // If there's only one page of results, output the links and exit.
-    if ( pages === 1 ) { 
-        return;
-    } 
-
-    //Start processing page 2
-    currentPage = currentPage +1;
-
-    while (currentPage < pages) {
-        const nextPageURL = `${endpoint}?page=${currentPage}`;
-
-        Axios.get(nextPageURL)
-            .subscribe(
-                response => response.data.map( ({link}) => console.log(link) ),
-                error => console.log(error),
-            );
-
-        currentPage = currentPage +1;
+    for (let i = 2; i <= pages; i++) {
+        const response = await getEndpoint(`${endpoint}?page=${i}`);
+        // Send link fields for this batch to the console.
+        response.data.map( ({link}) => console.log(link) );
     }
-}
-
-//Initial load
-Axios.get(endpoint)
-    .subscribe(
-        response => firstResponse(response),
-        error => console.log(error)
-    );
+})();
